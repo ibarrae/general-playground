@@ -17,6 +17,7 @@ defmodule Backend.Auth.User do
     |> validate_required([:email, :is_active, :password])
     |> unique_constraint(:email)
     |> validate_email()
+    |> validate_password()
     |> put_hash_password()
   end
 
@@ -35,7 +36,19 @@ defmodule Backend.Auth.User do
     end
   end
 
-  defp validate_email(changeset) do changeset end
+  defp validate_email(c) do c end
+
+  defp validate_password(
+    %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
+  ) do
+    if String.length(password) < 8 do
+      add_error(changeset, :password, "Password should be at least 8 characters long")
+    else
+      changeset
+    end
+  end
+
+  defp validate_password(c) do c end
 
   defp put_hash_password(
     %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
@@ -43,5 +56,5 @@ defmodule Backend.Auth.User do
     change(changeset, Bcrypt.add_hash(password))
   end
 
-  defp put_hash_password(changeset) do changeset end
+  defp put_hash_password(c) do c end
 end
