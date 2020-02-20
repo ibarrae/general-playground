@@ -10,6 +10,8 @@ use Mix.Config
 config :backend,
   ecto_repos: [Backend.Repo]
 
+config :backend, Backend.Repo, migration_timestamps: [type: :utc_datetime_usec]
+
 # Configures the endpoint
 config :backend, BackendWeb.Endpoint,
   url: [host: "localhost"],
