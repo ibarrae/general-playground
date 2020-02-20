@@ -25,10 +25,8 @@ defmodule Backend.Auth.User do
   defp validate_email(
     %Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset
   ) do
-    valid_email = String.match?(
-      email,
-      ~r/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/
-    )
+    valid_email = email |>
+      String.match?(~r/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/)
     if valid_email do
       changeset
     else
