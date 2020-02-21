@@ -1,6 +1,5 @@
 defmodule BackendWeb.Router do
   use BackendWeb, :router
-  alias BackendWeb.UserController
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,7 +15,7 @@ defmodule BackendWeb.Router do
 
   pipeline :basic_auth do
     plug BasicAuth,
-      callback: &UserController.authenticate/3
+      callback: &BackendWeb.UserController.authenticate/3
   end
 
   scope "/", BackendWeb do
@@ -25,11 +24,12 @@ defmodule BackendWeb.Router do
     get "/", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
+  scope "/api", BackendWeb do
+    pipe_through [:api, :basic_auth]
+    post "/users/sign-in", UserController, :sign_in
+  end
+
   scope "/api", BackendWeb do
     pipe_through :api
-
-    pipe_through :basic_auth
-    post "/users/sign-in", UserController, [:sign_in]
   end
 end
