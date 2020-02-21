@@ -3,7 +3,7 @@ matrix:
   include:
     - language: elixir
       elixir:
-        - '1.10.1'
+        - '1.5'
       env:
         - SECRET_KEY=ultrasupersecretkey
 
@@ -11,5 +11,6 @@ matrix:
         - cd elixir-elm/backend
 
       script:
+        - mix deps.get
         - mix compile
         - mix test
