@@ -20,8 +20,7 @@ defmodule Backend.MixProject do
   def application do
     [
       mod: {Backend.Application, []},
-      extra_applications: [:logger, :runtime_tools],
-      applications: [:guardian]
+      extra_applications: [:logger, :runtime_tools, :guardian]
     ]
   end
 
