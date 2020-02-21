@@ -6,8 +6,11 @@ matrix:
         - '1.5'
       env:
         - SECRET_KEY=ultrasupersecretkey
-      script:
+
+      before_install:
         - cd elixir-elm/backend
+
+      script:
         - mix deps.get
         - mix compile
         - mix test
