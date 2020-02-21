@@ -3,6 +3,8 @@ defmodule BackendWeb.CityControllerTest do
 
   alias Backend.Cities
   alias Backend.Cities.City
+  import Backend.JWTSerializer
+  alias Backend.Auth
 
   @create_attrs %{
     founded: ~D[2010-04-17],
@@ -21,20 +23,28 @@ defmodule BackendWeb.CityControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, user} =
+      Auth.create_user(
+        %{is_active: true, email: "foo@foo.com", password: "Admin123"}
+      )
+    {:ok, jwt, _} = encode_and_sign(user)
+    req = conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("authorization", "bearer " <> jwt)
+    {:ok, conn: req}
   end
 
   describe "index" do
     test "lists all cities", %{conn: conn} do
       conn = get(conn, Routes.city_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      assert json_response(conn, 200)["cities"] == []
     end
   end
 
   describe "create city" do
     test "renders city when data is valid", %{conn: conn} do
       conn = post(conn, Routes.city_path(conn, :create), city: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 201)["city"]
 
       conn = get(conn, Routes.city_path(conn, :show, id))
 
@@ -42,7 +52,7 @@ defmodule BackendWeb.CityControllerTest do
                "id" => id,
                "founded" => "2010-04-17",
                "name" => "some name"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["city"]
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -56,7 +66,7 @@ defmodule BackendWeb.CityControllerTest do
 
     test "renders city when data is valid", %{conn: conn, city: %City{id: id} = city} do
       conn = put(conn, Routes.city_path(conn, :update, city), city: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"id" => ^id} = json_response(conn, 200)["city"]
 
       conn = get(conn, Routes.city_path(conn, :show, id))
 
@@ -64,7 +74,7 @@ defmodule BackendWeb.CityControllerTest do
                "id" => id,
                "founded" => "2011-05-18",
                "name" => "some updated name"
-             } = json_response(conn, 200)["data"]
+             } = json_response(conn, 200)["city"]
     end
 
     test "renders errors when data is invalid", %{conn: conn, city: city} do
