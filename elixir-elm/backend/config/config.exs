@@ -33,7 +33,7 @@ config :phoenix, :json_library, Jason
 import_config "#{Mix.env()}.exs"
 
 # JWT config
-config :guardian, Guardian,
-  issuer: "eibarra-test",
-  secret_key: Mix.env(),
-  serializer: Backend.JWTSerializer
+config :backend, Backend.JWTSerializer,
+  issuer: "ibarrae",
+  secret_key: System.get_env("SECRET_KEY"),
+  ttl: { 30, :days }

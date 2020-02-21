@@ -5,6 +5,7 @@ defmodule BackendWeb.UserController do
   alias Backend.Auth.User
   alias BackendWeb.UserView
   alias BackendWeb.ErrorView
+  alias Backend.JWTSerializer
 
   action_fallback BackendWeb.FallbackController
 
@@ -31,11 +32,13 @@ defmodule BackendWeb.UserController do
   def valid_credentials(_user, _pwd), do: false
 
   def sign_in(conn, _) do
-    with %User{} <- conn.assigns.active_user do
-      conn
-        |> put_status(:ok)
-        |> put_view(UserView)
-        |> render("sign_in.json", jwt: "test")
+    user = conn.assigns.active_user
+    with %User{} <- user,
+      {:ok, jwt, _full_claims} = JWTSerializer.encode_and_sign(user) do
+        conn
+          |> put_status(:ok)
+          |> put_view(UserView)
+          |> render("sign_in.json", jwt: jwt)
 
     else
       _ ->
