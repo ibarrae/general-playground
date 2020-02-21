@@ -3,6 +3,8 @@ dist: trusty
 matrix:
   include:
     - language: erlang
+      otp_release:
+        - 22
       env:
         - SECRET_KEY=ultrasupersecretkey
         - EX_HOME=${TRAVIS_BUILD_DIR}/elixir
@@ -19,6 +21,7 @@ matrix:
         - popd
         - ${ELIXIR} ${MIX} local.hex --force
         - ${ELIXIR} ${MIX} local.rebar --force
+        - cd elixir-elm/backend
 
       script:
         - ${ELIXIR} ${MIX} deps.get
