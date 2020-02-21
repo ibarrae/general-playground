@@ -1,0 +1,13 @@
+language: c
+matrix:
+  - language: elixir
+    elixir:
+      - '1.5'
+    env:
+      - SECRET_KEY=ultrasupersecretkey
+    before_script:
+      - cd elixir-elm/backend
+    script:
+      - mix deps.get
+      - mix compile
+      - mix test
