@@ -34,7 +34,7 @@ defmodule BackendWeb.UserController do
   def sign_in(conn, _) do
     user = conn.assigns.active_user
     with %User{} <- user,
-      {:ok, jwt, _full_claims} = JWTSerializer.encode_and_sign(user) do
+      {:ok, jwt, _claims} = JWTSerializer.encode_and_sign(user) do
         conn
           |> put_status(:ok)
           |> put_view(UserView)

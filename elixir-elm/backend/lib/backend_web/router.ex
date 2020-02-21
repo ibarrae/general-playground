@@ -18,6 +18,10 @@ defmodule BackendWeb.Router do
       callback: &BackendWeb.UserController.authenticate/3
   end
 
+  pipeline :jwt_auth do
+    plug BackendWeb.JWT.AuthPipeline
+  end
+
   scope "/", BackendWeb do
     pipe_through :browser
 
@@ -30,7 +34,7 @@ defmodule BackendWeb.Router do
   end
 
   scope "/api", BackendWeb do
-    pipe_through :api
+    pipe_through [:api, :jwt_auth]
 
     resources "/cities", CityController
   end
