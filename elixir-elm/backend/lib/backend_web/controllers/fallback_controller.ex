@@ -12,4 +12,17 @@ defmodule BackendWeb.FallbackController do
     |> put_view(BackendWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, %Ecto.Changeset{valid?: false, errors: errors}}) do
+    readable_errors =
+      for { k, v } <- errors, into: [] do
+        { msg, _ } = v
+        Atom.to_string(k) <> " " <> msg
+      end
+
+    conn
+    |> put_status(:unprocessable_entity)
+    |> put_view(BackendWeb.ErrorView)
+    |> render("error.json", message: readable_errors)
+  end
 end
