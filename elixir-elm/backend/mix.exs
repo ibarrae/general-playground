@@ -20,7 +20,8 @@ defmodule Backend.MixProject do
   def application do
     [
       mod: {Backend.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      applications: [:guardian]
     ]
   end
 
@@ -44,7 +45,8 @@ defmodule Backend.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:bcrypt_elixir, "~> 2.1.0"},
-      {:basic_auth, "~> 2.2.3"}
+      {:basic_auth, "~> 2.2.3"},
+      {:guardian, "~>2.0.0"}
     ]
   end
 
