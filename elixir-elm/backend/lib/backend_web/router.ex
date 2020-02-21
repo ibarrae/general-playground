@@ -1,5 +1,6 @@
 defmodule BackendWeb.Router do
   use BackendWeb, :router
+  alias BackendWeb.UserController
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -29,6 +30,6 @@ defmodule BackendWeb.Router do
     pipe_through :api
 
     pipe_through :basic_auth
-    resources "/users/sign-in", UserController, [:sign_in]
+    post "/users/sign-in", UserController, [:sign_in]
   end
 end
