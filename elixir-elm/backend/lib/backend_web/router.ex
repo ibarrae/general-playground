@@ -31,5 +31,7 @@ defmodule BackendWeb.Router do
 
   scope "/api", BackendWeb do
     pipe_through :api
+
+    resources "/cities", CityController
   end
 end

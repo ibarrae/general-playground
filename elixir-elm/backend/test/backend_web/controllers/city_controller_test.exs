@@ -13,6 +13,7 @@ defmodule BackendWeb.CityControllerTest do
     name: "some updated name"
   }
   @invalid_attrs %{founded: nil, name: nil}
+  @expected_errors ["name can't be blank", "founded can't be blank"]
 
   def fixture(:city) do
     {:ok, city} = Cities.create_city(@create_attrs)
@@ -46,7 +47,7 @@ defmodule BackendWeb.CityControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.city_path(conn, :create), city: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert @expected_errors == json_response(conn, 422)["error"]
     end
   end
 
@@ -68,7 +69,7 @@ defmodule BackendWeb.CityControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn, city: city} do
       conn = put(conn, Routes.city_path(conn, :update, city), city: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert @expected_errors == json_response(conn, 422)["error"]
     end
   end
 
