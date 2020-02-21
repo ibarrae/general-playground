@@ -3,7 +3,7 @@ dist: trusty
 matrix:
   include:
     - language: elixir
-      otp_release: 22
+      otp_release: 22.2
       elixir: 1.10.1
       env:
         - SECRET_KEY=ultrasupersecretkey
