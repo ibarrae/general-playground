@@ -3,6 +3,8 @@ defmodule BackendWeb.UserController do
 
   alias Backend.Auth
   alias Backend.Auth.User
+  alias BackendWeb.UserView
+  alias BackendWeb.ErrorView
 
   action_fallback BackendWeb.FallbackController
 
@@ -10,8 +12,8 @@ defmodule BackendWeb.UserController do
     user = Auth.get_by_email(email)
     case valid_credentials(user, received_pwd) do
       true ->
-        conn
-        |> assign(:active_user, user)
+        conn |> assign(:active_user, user)
+
       false ->
         halt(conn)
     end
@@ -29,6 +31,18 @@ defmodule BackendWeb.UserController do
   def valid_credentials(_user, _pwd), do: false
 
   def sign_in(conn, _) do
-    %{status: :ok}
+    with %User{} <- conn.assigns.active_user do
+      conn
+        |> put_status(:ok)
+        |> put_view(UserView)
+        |> render("sign_in.json", jwt: "test")
+
+    else
+      _ ->
+        conn
+          |> put_status(:unauthorized)
+          |> put_view(ErrorView)
+          |> render("error.json", message: "Unauthorized")
+    end
   end
 end

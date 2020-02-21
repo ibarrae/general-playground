@@ -2,6 +2,10 @@ defmodule BackendWeb.UserView do
   use BackendWeb, :view
   alias BackendWeb.UserView
 
+  def render("sign_in.json", %{jwt: jwt}) do
+    %{token: jwt}
+  end
+
   def render("index.json", %{users: users}) do
     %{data: render_many(users, UserView, "user.json")}
   end
