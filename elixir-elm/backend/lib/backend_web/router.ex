@@ -29,6 +29,6 @@ defmodule BackendWeb.Router do
     pipe_through :api
 
     pipe_through :basic_auth
-    resources "/users/sign_in", UserController, [:sign_in]
+    resources "/users/sign-in", UserController, [:sign_in]
   end
 end
