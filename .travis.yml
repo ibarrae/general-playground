@@ -16,7 +16,7 @@ matrix:
       script:
         - psql -c "CREATE DATABASE phoenix_test;" -U postgres
         - psql -c "CREATE USER phoenix_test with password 'phoenix_test';" -U postgres
-        - psql -c "CREATE USER phoenix_test with SUPERUSER;" -U postgres
+        - psql -c "ALTER USER phoenix_test with SUPERUSER;" -U postgres
         - mix deps.get
         - MIX_ENV=test mix deps.compile
         - mix test
