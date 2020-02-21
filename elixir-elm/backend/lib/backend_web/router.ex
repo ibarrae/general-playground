@@ -13,6 +13,11 @@ defmodule BackendWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :basic_auth do
+    plug BasicAuth,
+      callback: &UserController.authenticate/3
+  end
+
   scope "/", BackendWeb do
     pipe_through :browser
 
@@ -20,7 +25,10 @@ defmodule BackendWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", BackendWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", BackendWeb do
+    pipe_through :api
+
+    pipe_through :basic_auth
+    resources "/users/sign_in", UserController, [:sign_in]
+  end
 end
