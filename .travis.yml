@@ -2,25 +2,13 @@ language: c
 dist: trusty
 matrix:
   include:
-    - language: erlang
-      otp_release:
-        - 22
+    - language: elixir
+      otp_release: 22
+      elixir: 1.10.1
       env:
         - SECRET_KEY=ultrasupersecretkey
-        - EX_HOME=${TRAVIS_BUILD_DIR}/elixir
-        - EX_BIN=${EX_HOME}/bin
-        - ELIXIR=${EX_BIN}/elixir
-        - MIX=${EX_BIN}/mix
-        - EX_VSN=1.10.1
 
       before_install:
-        - git clone https://github.com/elixir-lang/elixir.git ${EX_HOME}
-        - pushd ${EX_HOME}
-        - git checkout v${EX_VSN}
-        - make
-        - popd
-        - ${ELIXIR} ${MIX} local.hex --force
-        - ${ELIXIR} ${MIX} local.rebar --force
         - cd elixir-elm/backend
 
       script:
