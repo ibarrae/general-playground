@@ -9,7 +9,7 @@ matrix:
         - EX_BIN=${EX_HOME}/bin
         - ELIXIR=${EX_BIN}/elixir
         - MIX=${EX_BIN}/mix
-        - EX_VSN=1.7.1
+        - EX_VSN=1.10.1
 
       before_install:
         - git clone https://github.com/elixir-lang/elixir.git ${EX_HOME}
