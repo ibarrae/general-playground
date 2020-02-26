@@ -6,11 +6,13 @@ import Browser.Navigation as Navigation
 import Url exposing (Url)
 import Route exposing (Route)
 import Debug
+import Login
 
 
 type Msg
   = UrlChange Url
   | LinkClicked UrlRequest
+  | GotLoginMsg Login.Msg
 
 
 type alias Config =
@@ -22,25 +24,38 @@ type alias Config =
 type Model
   = NotFound
   | Home
-  | Login
+  | Login Login.Model
   | Movies
 
 
 init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
 init ({ mToken, apiRoot } as config) url key =
-  let model =
-        case mToken of
-          Just token -> Movies
-          Nothing    -> Login
-  in
-    (model, Cmd.none)
+  case mToken of
+    Just token -> (Movies, Cmd.none)
+    Nothing    ->
+      let (subModel, subCmd) = Login.init apiRoot
+      in  (Login subModel, Cmd.map GotLoginMsg subCmd)
+
+
+updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toModel toMsg model ( subModel, subCmd ) =
+    ( toModel subModel
+    , Cmd.map toMsg subCmd
+    )
 
 
 view : Model -> Document Msg
 view model =
-  { title = "Elm document"
-  , body = [p [] [ text <| Debug.toString model ]]
-  }
+  let body =
+        case model of
+          NotFound -> [p [] [text "The page you are looking for is not found"]]
+          Home -> [div [] []]
+          Login loginModel -> [p [] [ text "Login"] ]
+          Movies -> [div [] [] ]
+  in
+      { title = "Elm document"
+      , body = body
+      }
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -49,15 +64,16 @@ update msg model =
     UrlChange url -> changeUrlTo (Route.fromUrl url) model
     LinkClicked (Internal url) -> changeUrlTo (Route.fromUrl url) model
     LinkClicked (External url) -> (model, Navigation.load url)
-
+    GotLoginMsg _ -> (model, Cmd.none)
 
 
 changeUrlTo : Maybe Route -> Model -> (Model, Cmd Msg)
-changeUrlTo mRoute _ =
-  case mRoute of
-    Nothing -> ( NotFound, Cmd.none )
-    Just Route.Home -> ( Home, Cmd.none )
-    Just Route.Login -> ( Login, Cmd.none )
+changeUrlTo mRoute model =
+  case (mRoute, model) of
+    (Just Route.Login, Login loginModel) -> ( Login loginModel, Cmd.none )
+    (Just Route.Home, _) -> ( Home, Cmd.none )
+    (_, _) -> ( NotFound, Cmd.none )
+
 
 main : Program Config Model Msg
 main =
