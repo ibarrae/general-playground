@@ -60,11 +60,14 @@ view model =
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    UrlChange url -> changeUrlTo (Route.fromUrl url) model
-    LinkClicked (Internal url) -> changeUrlTo (Route.fromUrl url) model
-    LinkClicked (External url) -> (model, Navigation.load url)
-    GotLoginMsg _ -> (model, Cmd.none)
+  case (msg, model) of
+    (UrlChange url, _) -> changeUrlTo (Route.fromUrl url) model
+    (LinkClicked (Internal url), _) -> changeUrlTo (Route.fromUrl url) model
+    (LinkClicked (External url), _) -> (model, Navigation.load url)
+    (GotLoginMsg loginMsg, Login loginModel) ->
+      Login.update loginMsg loginModel
+        |> updateWith Login GotLoginMsg model
+    _ -> (model, Cmd.none)
 
 
 changeUrlTo : Maybe Route -> Model -> (Model, Cmd Msg)
