@@ -5,7 +5,9 @@ import Html.Attributes exposing (class, for, id, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
 import RemoteData exposing (WebData)
-import Http exposing (post, emptyBody, expectWhatever)
+import Http exposing (request, emptyBody, expectWhatever)
+import Base64
+import Debug
 
 type UserInput = UserInput
   { uiEmail : String
@@ -50,12 +52,23 @@ init root =
   , Cmd.none
   )
 
+
+basicAuthHeader : String -> String -> Http.Header
+basicAuthHeader email pwd =
+  Http.header "Authorization" <| "Basic " ++ Base64.encode (email ++ ":" ++ pwd)
+
+
 loginWithBasicAuth : String -> UserInput -> Cmd Msg
 loginWithBasicAuth apiRoot (UserInput {uiEmail, uiPassword}) =
-  post
-    { url = apiRoot ++ "/users/sign-in"
+  request
+    { method = "POST"
+    , headers = [ basicAuthHeader uiEmail uiPassword ]
+    , url = apiRoot ++ "/users/sign-in"
     , body = emptyBody
-    , expect = expectWhatever (RemoteData.fromResult >> LoginResponse) }
+    , expect = expectWhatever (RemoteData.fromResult >> LoginResponse)
+    , timeout = Nothing
+    , tracker = Nothing
+    }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg (Model ({apiRoot, userInput} as model)) =
@@ -69,8 +82,14 @@ update msg (Model ({apiRoot, userInput} as model)) =
       ( Model { model | userInput = updatePassword userInput password }
       , Cmd.none
       )
-    SubmitUserInfo -> ( Model model, loginWithBasicAuth apiRoot userInput )
-    LoginResponse response -> ( Model ({ model | loginResponse = response}), Cmd.none )
+    SubmitUserInfo ->
+      ( Model ({ model | loginResponse = RemoteData.Loading })
+      , loginWithBasicAuth apiRoot userInput
+      )
+    LoginResponse response ->
+      ( Model ({ model | loginResponse = response})
+      , Cmd.none
+      )
 
 view : Model -> Document Msg
 view (Model ({apiRoot, userInput, loginResponse})) =
