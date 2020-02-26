@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Elm playground",
+  "main": "index.js",
+  "author": "Esteban Ibarra",
+  "license": "MIT",
+  "devDependencies": {
+    "elm-webpack-loader": "^6.0.1",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
