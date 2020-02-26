@@ -1,7 +1,7 @@
 module Login exposing (Model, Msg, init, update, view)
 
 import Html exposing (Html, div, label, input, form, text, button)
-import Html.Attributes exposing (class, for, id, type_, value)
+import Html.Attributes as Html exposing (class, for, id, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
 import RemoteData exposing (WebData)
@@ -46,7 +46,7 @@ init : String -> (Model, Cmd msg)
 init root =
   ( Model
     { apiRoot = root
-    , userInput = UserInput { uiEmail = "", uiPassword = ""}
+    , userInput = UserInput { uiEmail = "", uiPassword = "" }
     , loginResponse = RemoteData.NotAsked
     }
   , Cmd.none
@@ -94,10 +94,10 @@ update msg (Model ({apiRoot, userInput} as model)) =
 view : Model -> Document Msg
 view (Model ({apiRoot, userInput, loginResponse})) =
 
-  let (disabledClass, loadingText) =
+  let (disabledClass, loadingText, disabled) =
         case loginResponse of
-          RemoteData.Loading -> ("btn-disabled", " loading ...")
-          _ -> ("", "")
+          RemoteData.Loading -> ("btn-disabled", " loading ...", True)
+          _ -> ("", "", False)
   in
     { title = "Login"
     , body = [
@@ -107,15 +107,15 @@ view (Model ({apiRoot, userInput, loginResponse})) =
           [ onSubmit SubmitUserInfo ]
           [ div
               [ class "form-group"]
-              [ label [ for "email"] [text "Email:"]
+              [ label [ for "email" ] [text "Email:"]
               , input [class "form-control", id "email", type_ "email", value <| getEmail userInput, onInput EmailChange] []
               ]
           , div
               [ class "form-group"]
-              [ label [ for "password"] [text "Password:"]
+              [ label [ for "password" ] [ text "Password:" ]
               , input [class "form-control", id "password", type_ "password", value <| getPassword userInput, onInput PasswordChange] []
               ]
-          , button [ class <| "btn btn-primary" ++ disabledClass ] [text <| "Login" ++ loadingText]
+          , button [ class <| "btn btn-primary" ++ disabledClass, Html.disabled disabled ] [text <| "Login" ++ loadingText]
           ]
 
         ]
