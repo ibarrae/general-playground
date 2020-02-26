@@ -1,6 +1,9 @@
 "use strict";
 
-require("./index.html");
+var { Elm } = require("./Main.elm");
+const flags = {
+  token: localStorage.getItem("my-token"),
+  apiRoot: API_ROOT
+};
 
-var Elm = require("./Main.elm");
-var app = Elm.Elm.Main.init();
+Elm.Main.init({ node: document.getElementById("root"), flags: flags });

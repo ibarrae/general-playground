@@ -1,37 +1,50 @@
 module Main exposing ( main )
 
 import Html exposing (..)
-import Browser
+import Browser exposing (Document)
+import Browser.Navigation as Browser
+import Url exposing (Url)
 
 
 type Msg
   = NoOp
+  | UrlChange Url
+  | LinkClicked Browser.UrlRequest
 
 
-type alias Model =
+type Model = Model
   { state : List String
   }
 
 
-initialModel : Model
-initialModel = Model []
+type alias Config =
+  { token : Maybe String
+  , apiRoot : String
+  }
 
 
-view : Model -> Html Msg
-view model =
-  p [] [ text "hi, this was faster than 2 minutes right?!" ]
+init : Config -> Url -> Browser.Key -> (Model, Cmd Msg)
+init _ _ _ = (Model { state = []}, Cmd.none)
 
 
-update : Msg -> Model -> Model
-update msg model =
-  case msg of
-    NoOp -> model
+view : Model -> Document Msg
+view _ =
+  { title = "Elm document"
+  , body = [p [] [ text "This was faster than 2 minutes right?!" ]]
+  }
 
 
-main : Program () Model Msg
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model = (model, Cmd.none)
+
+
+main : Program Config Model Msg
 main =
-  Browser.sandbox
-    { init = initialModel
-    , view = view
+  Browser.application
+    { init = init
+    , onUrlChange = UrlChange
+    , onUrlRequest = LinkClicked
+    , subscriptions = \_ -> Sub.none
     , update = update
+    , view = view
     }

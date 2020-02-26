@@ -1,4 +1,7 @@
-var path = require('path');
+const path = require('path');
+const HTMLWebpackPlugin = require("html-webpack-plugin");
+const webpack = require('webpack');
+const env = require('dotenv').config();
 
 module.exports = {
   entry: {
@@ -28,6 +31,16 @@ module.exports = {
 
     noParse: /\.elm$/,
   },
+
+  plugins: [
+    new HTMLWebpackPlugin({
+        template: "src/index.html",
+        inject: "body"
+    }),
+    new webpack.DefinePlugin({
+      API_ROOT: JSON.stringify(env.parsed.API_ROOT)
+    })
+],
 
   devServer: {
     inline: true,
