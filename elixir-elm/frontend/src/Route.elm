@@ -2,6 +2,7 @@ module Route exposing (Route(..), fromUrl)
 
 import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string, top, parse)
+import Debug
 
 type Route
   = Home

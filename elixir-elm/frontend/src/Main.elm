@@ -23,10 +23,17 @@ type Model
   = NotFound
   | Home
   | Login
+  | Movies
 
 
 init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
-init ({ mToken, apiRoot } as config) url key = (NotFound, Cmd.none)
+init ({ mToken, apiRoot } as config) url key =
+  let model =
+        case mToken of
+          Just token -> Movies
+          Nothing    -> Login
+  in
+    (model, Cmd.none)
 
 
 view : Model -> Document Msg
