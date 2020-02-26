@@ -1,42 +1,56 @@
 module Main exposing ( main )
 
 import Html exposing (..)
-import Browser exposing (Document)
-import Browser.Navigation as Browser
+import Browser exposing (Document, UrlRequest(..))
+import Browser.Navigation as Navigation
 import Url exposing (Url)
+import Route exposing (Route)
+import Debug
 
 
 type Msg
-  = NoOp
-  | UrlChange Url
-  | LinkClicked Browser.UrlRequest
-
-
-type Model = Model
-  { state : List String
-  }
+  = UrlChange Url
+  | LinkClicked UrlRequest
 
 
 type alias Config =
-  { token : Maybe String
+  { mToken : Maybe String
   , apiRoot : String
   }
 
 
-init : Config -> Url -> Browser.Key -> (Model, Cmd Msg)
-init _ _ _ = (Model { state = []}, Cmd.none)
+type Model
+  = NotFound
+  | Home
+  | Login
+
+
+init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
+init ({ mToken, apiRoot } as config) url key = (NotFound, Cmd.none)
 
 
 view : Model -> Document Msg
-view _ =
+view model =
   { title = "Elm document"
-  , body = [p [] [ text "This was faster than 2 minutes right?!" ]]
+  , body = [p [] [ text <| Debug.toString model ]]
   }
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model = (model, Cmd.none)
+update msg model =
+  case msg of
+    UrlChange url -> changeUrlTo (Route.fromUrl url) model
+    LinkClicked (Internal url) -> changeUrlTo (Route.fromUrl url) model
+    LinkClicked (External url) -> (model, Navigation.load url)
 
+
+
+changeUrlTo : Maybe Route -> Model -> (Model, Cmd Msg)
+changeUrlTo mRoute _ =
+  case mRoute of
+    Nothing -> ( NotFound, Cmd.none )
+    Just Route.Home -> ( Home, Cmd.none )
+    Just Route.Login -> ( Login, Cmd.none )
 
 main : Program Config Model Msg
 main =

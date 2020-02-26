@@ -2,7 +2,7 @@
 
 var { Elm } = require("./Main.elm");
 const flags = {
-  token: localStorage.getItem("my-token"),
+  mToken: localStorage.getItem("my-token"),
   apiRoot: API_ROOT
 };
 
