@@ -17,12 +17,12 @@ module.exports = {
       {
         test:    /\.html$/,
         exclude: /node_modules/,
-        loader:  'file-loader?name=[name].[ext]',
+        loader:  'html-loader',
       },
       {
         test:    /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        loader:  'elm-webpack-loader?verbose=true&warn=true',
+        loader:  'elm-webpack-loader?verbose=true',
       },
     ],
 
