@@ -5,8 +5,8 @@ import Browser exposing (Document, UrlRequest(..))
 import Browser.Navigation as Navigation
 import Url exposing (Url)
 import Route exposing (Route)
-import Debug
 import Login
+import List
 
 
 type Msg
@@ -44,18 +44,21 @@ updateWith toModel toMsg model ( subModel, subCmd ) =
     )
 
 
+updateViewWith : Document subMsg -> (subMsg -> Msg) -> Document Msg
+updateViewWith {title, body} toMsg =
+  {title = title, body = List.map (Html.map toMsg) body}
+
+
 view : Model -> Document Msg
 view model =
-  let body =
-        case model of
-          NotFound -> [p [] [text "The page you are looking for is not found"]]
-          Home -> [div [] []]
-          Login loginModel -> [p [] [ text "Login"] ]
-          Movies -> [div [] [] ]
-  in
-      { title = "Elm document"
-      , body = body
+  case model of
+    NotFound ->
+      { title = "Not found"
+      , body = [ p [] [ text "The page you are looking for is not found" ] ]
       }
+    Home -> { title = "Home", body = [] }
+    Login loginModel -> updateViewWith (Login.view loginModel) GotLoginMsg
+    Movies -> { title = "Movies", body = [] }
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
