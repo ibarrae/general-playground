@@ -2,7 +2,7 @@ module Login exposing (Model, Msg, init, update, view)
 
 import Html exposing (Html, div, label, input, form, text, button)
 import Html.Attributes exposing (class, for, id, type_, value)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
 import Debug
 
@@ -33,9 +33,9 @@ type Model = Model
   }
 
 type Msg
-  = OnEmailChange String
-  | OnPasswordChange String
-  | OnSubmit
+  = EmailChange String
+  | PasswordChange String
+  | SubmitUserInfo
 
 init : String -> (Model, Cmd msg)
 init root =
@@ -49,16 +49,16 @@ init root =
 update : Msg -> Model -> (Model, Cmd msg)
 update msg (Model ({apiRoot, userInput} as model)) =
   case msg of
-    OnEmailChange email ->
+    EmailChange email ->
       ( Model { model | userInput = updateEmail userInput email }
       , Cmd.none
       )
 
-    OnPasswordChange password ->
+    PasswordChange password ->
       ( Model { model | userInput = updatePassword userInput password }
       , Cmd.none
       )
-    OnSubmit -> ( Model model, Cmd.none )
+    SubmitUserInfo -> ( Model model, Cmd.none )
 
 view : Model -> Document Msg
 view (Model ({apiRoot, userInput})) =
@@ -67,16 +67,16 @@ view (Model ({apiRoot, userInput})) =
       div
       [ class "container" ]
       [ form
-        []
+        [ onSubmit SubmitUserInfo ]
         [ div
             [ class "form-group"]
             [ label [ for "email"] [text "Email:"]
-            , input [class "form-control", id "email", type_ "email", value <| getEmail userInput, onInput OnEmailChange] []
+            , input [class "form-control", id "email", type_ "email", value <| getEmail userInput, onInput EmailChange] []
             ]
         , div
             [ class "form-group"]
             [ label [ for "password"] [text "Password:"]
-            , input [class "form-control", id "password", type_ "password", value <| getPassword userInput, onInput OnPasswordChange] []
+            , input [class "form-control", id "password", type_ "password", value <| getPassword userInput, onInput PasswordChange] []
             ]
         , button [ class "btn btn-primary" ] [text "Login"]
         ]
