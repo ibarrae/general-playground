@@ -4,7 +4,8 @@ import Html exposing (Html, div, label, input, form, text, button)
 import Html.Attributes exposing (class, for, id, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
-import Debug
+import RemoteData exposing (WebData)
+import Http exposing (post, emptyBody, expectWhatever)
 
 type UserInput = UserInput
   { uiEmail : String
@@ -30,23 +31,33 @@ getPassword (UserInput {uiEmail, uiPassword}) =
 type Model = Model
   { apiRoot : String
   , userInput : UserInput
+  , loginResponse : WebData ()
   }
 
 type Msg
   = EmailChange String
   | PasswordChange String
   | SubmitUserInfo
+  | LoginResponse (WebData ())
 
 init : String -> (Model, Cmd msg)
 init root =
   ( Model
     { apiRoot = root
     , userInput = UserInput { uiEmail = "", uiPassword = ""}
+    , loginResponse = RemoteData.NotAsked
     }
   , Cmd.none
   )
 
-update : Msg -> Model -> (Model, Cmd msg)
+loginWithBasicAuth : String -> UserInput -> Cmd Msg
+loginWithBasicAuth apiRoot (UserInput {uiEmail, uiPassword}) =
+  post
+    { url = apiRoot ++ "/users/sign-in"
+    , body = emptyBody
+    , expect = expectWhatever (RemoteData.fromResult >> LoginResponse) }
+
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg (Model ({apiRoot, userInput} as model)) =
   case msg of
     EmailChange email ->
@@ -58,29 +69,36 @@ update msg (Model ({apiRoot, userInput} as model)) =
       ( Model { model | userInput = updatePassword userInput password }
       , Cmd.none
       )
-    SubmitUserInfo -> ( Model model, Cmd.none )
+    SubmitUserInfo -> ( Model model, loginWithBasicAuth apiRoot userInput )
+    LoginResponse response -> ( Model ({ model | loginResponse = response}), Cmd.none )
 
 view : Model -> Document Msg
-view (Model ({apiRoot, userInput})) =
-  { title = "Login"
-  , body = [
-      div
-      [ class "container" ]
-      [ form
-        [ onSubmit SubmitUserInfo ]
-        [ div
-            [ class "form-group"]
-            [ label [ for "email"] [text "Email:"]
-            , input [class "form-control", id "email", type_ "email", value <| getEmail userInput, onInput EmailChange] []
-            ]
-        , div
-            [ class "form-group"]
-            [ label [ for "password"] [text "Password:"]
-            , input [class "form-control", id "password", type_ "password", value <| getPassword userInput, onInput PasswordChange] []
-            ]
-        , button [ class "btn btn-primary" ] [text "Login"]
-        ]
+view (Model ({apiRoot, userInput, loginResponse})) =
 
+  let (disabledClass, loadingText) =
+        case loginResponse of
+          RemoteData.Loading -> ("btn-disabled", " loading ...")
+          _ -> ("", "")
+  in
+    { title = "Login"
+    , body = [
+        div
+        [ class "container" ]
+        [ form
+          [ onSubmit SubmitUserInfo ]
+          [ div
+              [ class "form-group"]
+              [ label [ for "email"] [text "Email:"]
+              , input [class "form-control", id "email", type_ "email", value <| getEmail userInput, onInput EmailChange] []
+              ]
+          , div
+              [ class "form-group"]
+              [ label [ for "password"] [text "Password:"]
+              , input [class "form-control", id "password", type_ "password", value <| getPassword userInput, onInput PasswordChange] []
+              ]
+          , button [ class <| "btn btn-primary" ++ disabledClass ] [text <| "Login" ++ loadingText]
+          ]
+
+        ]
       ]
-    ]
-  }
+    }
