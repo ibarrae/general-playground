@@ -7,7 +7,7 @@ import Browser exposing (Document)
 import RemoteData
 import Http exposing (request, emptyBody)
 import Base64
-import Token exposing (JWTToken(..), JWTResponse, tokenDecoder)
+import Session exposing (JWTToken(..), JWTResponse, tokenDecoder)
 import Ports
 
 type UserInput = UserInput

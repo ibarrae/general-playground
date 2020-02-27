@@ -1,7 +1,7 @@
 module Cities exposing (Model, Msg, init, view)
 
 
-import Token exposing (JWTToken)
+import Session exposing (JWTToken)
 import RemoteData exposing (WebData)
 import Array exposing (Array)
 import Date exposing (Date)
@@ -10,6 +10,7 @@ import Browser exposing (Document)
 
 type Model = Model
   { token : JWTToken
+  , citiesResponse : WebData (Array City)
   }
 
 type City = City
@@ -19,9 +20,16 @@ type City = City
 
 type Msg
   = CitiesResponse (WebData (Array City))
+  | RefreshCities
 
 init : JWTToken -> (Model, Cmd Msg)
-init token = ( Model { token = token }, Cmd.none)
+init token =
+  ( Model
+      { token = token
+      , citiesResponse =  RemoteData.Loading
+      }
+  , Cmd.none
+  )
 
 
 view : Model -> Document Msg

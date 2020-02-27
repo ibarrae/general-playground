@@ -8,14 +8,14 @@ import Route exposing (Route)
 import Login
 import List
 import Cities
-import Token
+import Session
 import Ports
 
 
 type Msg
   = UrlChange Url
   | LinkClicked UrlRequest
-  | TokenChanged (Maybe String)
+  | SessionChanged (Maybe String)
   | GotLoginMsg Login.Msg
   | GotCitiesMsg Cities.Msg
 
@@ -37,7 +37,7 @@ init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
 init ({ mToken, apiRoot }) _ _ =
   case mToken of
     Just token ->
-      Cities.init (Token.JWTToken token)
+      Cities.init (Session.JWTToken token)
         |> updateWith Cities GotCitiesMsg
 
     Nothing    ->
@@ -75,10 +75,10 @@ update msg model =
     (UrlChange url, _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (Internal url), _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (External url), _) -> (model, Navigation.load url)
-    (TokenChanged (Just token), _) ->
-      Cities.init (Token.JWTToken token)
+    (SessionChanged (Just token), _) ->
+      Cities.init (Session.JWTToken token)
         |> updateWith Cities GotCitiesMsg
-    (TokenChanged Nothing, _) -> (model, Cmd.none)
+    (SessionChanged Nothing, _) -> (model, Cmd.none)
     (GotLoginMsg loginMsg, Login loginModel) ->
       Login.update loginMsg loginModel
         |> updateWith Login GotLoginMsg
@@ -105,4 +105,4 @@ main =
     }
 
 subscriptions : Model -> Sub Msg
-subscriptions _ = Ports.onTokenChange TokenChanged
+subscriptions _ = Ports.onTokenChange SessionChanged
