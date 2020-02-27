@@ -7,7 +7,7 @@ import Browser exposing (Document)
 import RemoteData
 import Http exposing (request, emptyBody)
 import Base64
-import Session exposing (JWTToken(..), JWTResponse, tokenDecoder)
+import Session exposing (JWTToken(..), sessionJson, JWTResponse, tokenDecoder)
 import Ports
 
 type UserInput = UserInput
@@ -94,7 +94,8 @@ update msg (Model ({apiRoot, userInput} as model)) =
     LoginResponse response ->
       ( Model { model | loginResponse = response }
       , case response of
-          RemoteData.Success (JWTToken token) -> Ports.manageToken <| Just token
+          RemoteData.Success token ->
+            Ports.manageToken <| Just <| sessionJson apiRoot  token
           _ -> Cmd.none
       )
 

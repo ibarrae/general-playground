@@ -1,7 +1,7 @@
 "use strict";
 
 var { Elm } = require("./Main.elm");
-const tokenKey = "my-token"
+const tokenKey = "my-session"
 const flags = {
   mToken: localStorage.getItem(tokenKey),
   apiRoot: API_ROOT

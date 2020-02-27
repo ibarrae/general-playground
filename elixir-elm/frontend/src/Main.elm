@@ -10,12 +10,15 @@ import List
 import Cities
 import Session
 import Ports
+import Json.Decode exposing (decodeValue)
+import Result exposing (toMaybe)
+import Maybe
 
 
 type Msg
   = UrlChange Url
   | LinkClicked UrlRequest
-  | SessionChanged (Maybe String)
+  | SessionChanged (Maybe Session.Session)
   | GotLoginMsg Login.Msg
   | GotCitiesMsg Cities.Msg
 
@@ -37,7 +40,7 @@ init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
 init ({ mToken, apiRoot }) _ _ =
   case mToken of
     Just token ->
-      Cities.init (Session.JWTToken token)
+      Cities.init { apiRoot = apiRoot, token = Session.JWTToken token }
         |> updateWith Cities GotCitiesMsg
 
     Nothing    ->
@@ -75,8 +78,8 @@ update msg model =
     (UrlChange url, _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (Internal url), _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (External url), _) -> (model, Navigation.load url)
-    (SessionChanged (Just token), _) ->
-      Cities.init (Session.JWTToken token)
+    (SessionChanged (Just session), _) ->
+      Cities.init session
         |> updateWith Cities GotCitiesMsg
     (SessionChanged Nothing, _) -> (model, Cmd.none)
     (GotLoginMsg loginMsg, Login loginModel) ->
@@ -105,4 +108,11 @@ main =
     }
 
 subscriptions : Model -> Sub Msg
-subscriptions _ = Ports.onTokenChange SessionChanged
+subscriptions _ =
+  Ports.onTokenChange
+    (\mValue ->
+      SessionChanged <|
+        case mValue of
+          Nothing -> Nothing
+          Just val -> toMaybe <| decodeValue Session.sessionDecoder val
+    )

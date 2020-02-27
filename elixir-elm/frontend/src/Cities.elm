@@ -6,10 +6,11 @@ import RemoteData exposing (WebData)
 import Array exposing (Array)
 import Date exposing (Date)
 import Browser exposing (Document)
+import Session
 
 
 type Model = Model
-  { token : JWTToken
+  { session : Session.Session
   , citiesResponse : WebData (Array City)
   }
 
@@ -22,10 +23,10 @@ type Msg
   = CitiesResponse (WebData (Array City))
   | RefreshCities
 
-init : JWTToken -> (Model, Cmd Msg)
-init token =
+init : Session.Session -> (Model, Cmd Msg)
+init session =
   ( Model
-      { token = token
+      { session = session
       , citiesResponse =  RemoteData.Loading
       }
   , Cmd.none
