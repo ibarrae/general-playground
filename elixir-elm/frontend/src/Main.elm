@@ -109,7 +109,7 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  Ports.onTokenChange
+  Ports.onSessionChange
     (\mValue ->
       SessionChanged <|
         case mValue of

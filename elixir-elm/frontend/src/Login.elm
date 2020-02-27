@@ -95,7 +95,7 @@ update msg (Model ({apiRoot, userInput} as model)) =
       ( Model { model | loginResponse = response }
       , case response of
           RemoteData.Success token ->
-            Ports.manageToken <| Just <| sessionJson apiRoot  token
+            Ports.manageSession <| Just <| sessionJson apiRoot  token
           _ -> Cmd.none
       )
 

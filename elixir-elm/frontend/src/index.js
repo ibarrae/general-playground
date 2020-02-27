@@ -9,17 +9,17 @@ const flags = {
 
 const app = Elm.Main.init({ node: document.getElementById("root"), flags: flags });
 
-app.ports.manageToken.subscribe((val) => {
+app.ports.manageSession.subscribe((val) => {
   if (val) {
     localStorage.setItem(tokenKey, val)
   } else {
     localStorage.removeItem(tokenKey);
   }
-  setTimeout(() => app.ports.onTokenChange.send(val), 0);
+  setTimeout(() => app.ports.onSessionChange.send(val), 0);
 });
 
 window.addEventListener("storage", (event) => {
   if (event.storageArea === localStorage && event.key === tokenKey) {
-    app.ports.onTokenChange.send(event.newValue);
+    app.ports.onSessionChange.send(event.newValue);
   }
 }, false);

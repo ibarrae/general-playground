@@ -1,7 +1,7 @@
-port module Ports exposing (manageToken, onTokenChange)
+port module Ports exposing (manageSession, onSessionChange)
 
 import Json.Encode exposing (Value)
 
-port manageToken : Maybe Value -> Cmd msg
+port manageSession : Maybe Value -> Cmd msg
 
-port onTokenChange : (Maybe Value -> msg) -> Sub msg
+port onSessionChange : (Maybe Value -> msg) -> Sub msg
