@@ -7,6 +7,7 @@ import Browser exposing (Document)
 import RemoteData exposing (WebData)
 import Http exposing (request, emptyBody, expectWhatever)
 import Base64
+import Json.Decode as D
 
 type UserInput = UserInput
   { uiEmail : String
@@ -29,17 +30,26 @@ getPassword : UserInput -> String
 getPassword (UserInput {uiPassword}) =
   uiPassword
 
+
+type Token = Token String
+
+tokenDecoder : D.Decoder Token
+tokenDecoder =
+  D.map Token <| D.field "token" D.string
+
+type alias TokenResponse = WebData Token
+
 type Model = Model
   { apiRoot : String
   , userInput : UserInput
-  , loginResponse : WebData ()
+  , loginResponse : TokenResponse
   }
 
 type Msg
   = EmailChange String
   | PasswordChange String
   | SubmitUserInfo
-  | LoginResponse (WebData ())
+  | LoginResponse TokenResponse
 
 init : String -> (Model, Cmd msg)
 init root =
@@ -64,7 +74,7 @@ loginWithBasicAuth apiRoot (UserInput {uiEmail, uiPassword}) =
     , headers = [ basicAuthHeader uiEmail uiPassword ]
     , url = apiRoot ++ "/users/sign-in"
     , body = emptyBody
-    , expect = expectWhatever (RemoteData.fromResult >> LoginResponse)
+    , expect = Http.expectJson (LoginResponse << RemoteData.fromResult) tokenDecoder
     , timeout = Nothing
     , tracker = Nothing
     }
@@ -88,7 +98,7 @@ update msg (Model ({apiRoot, userInput} as model)) =
       )
 
     LoginResponse response ->
-      ( Model { model | loginResponse = response}
+      ( Model { model | loginResponse = response }
       , Cmd.none
       )
 
