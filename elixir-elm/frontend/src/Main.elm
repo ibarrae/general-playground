@@ -9,11 +9,13 @@ import Login
 import List
 import Cities
 import Token
+import Ports
 
 
 type Msg
   = UrlChange Url
   | LinkClicked UrlRequest
+  | TokenChanged (Maybe String)
   | GotLoginMsg Login.Msg
   | GotCitiesMsg Cities.Msg
 
@@ -39,8 +41,8 @@ init ({ mToken, apiRoot }) _ _ =
         |> updateWith Cities GotCitiesMsg
 
     Nothing    ->
-      let (subModel, subCmd) = Login.init apiRoot
-      in  (Login subModel, Cmd.map GotLoginMsg subCmd)
+      Login.init apiRoot
+        |> updateWith Login GotLoginMsg
 
 
 updateWith : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
@@ -73,6 +75,10 @@ update msg model =
     (UrlChange url, _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (Internal url), _) -> changeUrlTo (Route.fromUrl url) model
     (LinkClicked (External url), _) -> (model, Navigation.load url)
+    (TokenChanged (Just token), _) ->
+      Cities.init (Token.JWTToken token)
+        |> updateWith Cities GotCitiesMsg
+    (TokenChanged Nothing, _) -> (model, Cmd.none)
     (GotLoginMsg loginMsg, Login loginModel) ->
       Login.update loginMsg loginModel
         |> updateWith Login GotLoginMsg
@@ -93,7 +99,10 @@ main =
     { init = init
     , onUrlChange = UrlChange
     , onUrlRequest = LinkClicked
-    , subscriptions = \_ -> Sub.none
+    , subscriptions = subscriptions
     , update = update
     , view = view
     }
+
+subscriptions : Model -> Sub Msg
+subscriptions _ = Ports.onTokenChange TokenChanged

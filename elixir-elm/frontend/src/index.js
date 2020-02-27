@@ -15,11 +15,10 @@ app.ports.manageToken.subscribe((val) => {
   } else {
     localStorage.removeItem(tokenKey);
   }
-
   setTimeout(() => app.ports.onTokenChange.send(val), 0);
 });
 
-window.addEventListener("storage", function(event) {
+window.addEventListener("storage", (event) => {
   if (event.storageArea === localStorage && event.key === tokenKey) {
     app.ports.onTokenChange.send(event.newValue);
   }
