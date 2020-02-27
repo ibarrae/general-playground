@@ -7,12 +7,15 @@ import Url exposing (Url)
 import Route exposing (Route)
 import Login
 import List
+import Cities
+import Token
 
 
 type Msg
   = UrlChange Url
   | LinkClicked UrlRequest
   | GotLoginMsg Login.Msg
+  | GotCitiesMsg Cities.Msg
 
 
 type alias Config =
@@ -25,13 +28,16 @@ type Model
   = NotFound
   | Home
   | Login Login.Model
-  | Movies
+  | Cities Cities.Model
 
 
 init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
 init ({ mToken, apiRoot }) _ _ =
   case mToken of
-    Just _ -> (Movies, Cmd.none)
+    Just token ->
+      Cities.init (Token.JWTToken token)
+        |> updateWith Cities GotCitiesMsg
+
     Nothing    ->
       let (subModel, subCmd) = Login.init apiRoot
       in  (Login subModel, Cmd.map GotLoginMsg subCmd)
@@ -58,7 +64,7 @@ view model =
       }
     Home -> { title = "Home", body = [] }
     Login loginModel -> updateViewWith (Login.view loginModel) GotLoginMsg
-    Movies -> { title = "Movies", body = [] }
+    Cities citiesModel -> updateViewWith (Cities.view citiesModel) GotCitiesMsg
 
 
 update : Msg -> Model -> (Model, Cmd Msg)

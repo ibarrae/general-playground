@@ -4,10 +4,11 @@ import Html exposing (div, label, input, form, text, button)
 import Html.Attributes as Html exposing (class, for, id, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
-import RemoteData exposing (WebData)
-import Http exposing (request, emptyBody, expectWhatever)
+import RemoteData
+import Http exposing (request, emptyBody)
 import Base64
-import Json.Decode as D
+import Token exposing (JWTResponse, tokenDecoder)
+import Browser.Navigation as Navigation
 
 type UserInput = UserInput
   { uiEmail : String
@@ -31,25 +32,17 @@ getPassword (UserInput {uiPassword}) =
   uiPassword
 
 
-type Token = Token String
-
-tokenDecoder : D.Decoder Token
-tokenDecoder =
-  D.map Token <| D.field "token" D.string
-
-type alias TokenResponse = WebData Token
-
 type Model = Model
   { apiRoot : String
   , userInput : UserInput
-  , loginResponse : TokenResponse
+  , loginResponse : JWTResponse
   }
 
 type Msg
   = EmailChange String
   | PasswordChange String
   | SubmitUserInfo
-  | LoginResponse TokenResponse
+  | LoginResponse JWTResponse
 
 init : String -> (Model, Cmd msg)
 init root =
@@ -99,7 +92,9 @@ update msg (Model ({apiRoot, userInput} as model)) =
 
     LoginResponse response ->
       ( Model { model | loginResponse = response }
-      , Cmd.none
+      , case response of
+          RemoteData.Success _ -> Navigation.load "/#/cities"
+          _ -> Cmd.none
       )
 
 view : Model -> Document Msg
