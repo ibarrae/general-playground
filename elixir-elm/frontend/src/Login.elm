@@ -1,13 +1,12 @@
 module Login exposing (Model, Msg, init, update, view)
 
-import Html exposing (Html, div, label, input, form, text, button)
+import Html exposing (div, label, input, form, text, button)
 import Html.Attributes as Html exposing (class, for, id, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Browser exposing (Document)
 import RemoteData exposing (WebData)
 import Http exposing (request, emptyBody, expectWhatever)
 import Base64
-import Debug
 
 type UserInput = UserInput
   { uiEmail : String
@@ -16,18 +15,18 @@ type UserInput = UserInput
 
 updateEmail : UserInput -> String -> UserInput
 updateEmail (UserInput input) email =
-  UserInput ({ input | uiEmail = email })
+  UserInput { input | uiEmail = email }
 
 updatePassword : UserInput -> String -> UserInput
 updatePassword (UserInput input) password =
-  UserInput ({ input | uiPassword = password })
+  UserInput { input | uiPassword = password }
 
 getEmail : UserInput -> String
-getEmail (UserInput {uiEmail, uiPassword}) =
+getEmail (UserInput {uiEmail}) =
   uiEmail
 
 getPassword : UserInput -> String
-getPassword (UserInput {uiEmail, uiPassword}) =
+getPassword (UserInput {uiPassword}) =
   uiPassword
 
 type Model = Model
@@ -82,17 +81,19 @@ update msg (Model ({apiRoot, userInput} as model)) =
       ( Model { model | userInput = updatePassword userInput password }
       , Cmd.none
       )
+
     SubmitUserInfo ->
-      ( Model ({ model | loginResponse = RemoteData.Loading })
+      ( Model { model | loginResponse = RemoteData.Loading }
       , loginWithBasicAuth apiRoot userInput
       )
+
     LoginResponse response ->
-      ( Model ({ model | loginResponse = response})
+      ( Model { model | loginResponse = response}
       , Cmd.none
       )
 
 view : Model -> Document Msg
-view (Model ({apiRoot, userInput, loginResponse})) =
+view (Model ({userInput, loginResponse})) =
 
   let (disabledClass, loadingText, disabled) =
         case loginResponse of

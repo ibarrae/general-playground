@@ -1,6 +1,6 @@
 module Main exposing ( main )
 
-import Html exposing (..)
+import Html exposing (text, p)
 import Browser exposing (Document, UrlRequest(..))
 import Browser.Navigation as Navigation
 import Url exposing (Url)
@@ -29,16 +29,16 @@ type Model
 
 
 init : Config -> Url -> Navigation.Key -> (Model, Cmd Msg)
-init ({ mToken, apiRoot } as config) url key =
+init ({ mToken, apiRoot }) _ _ =
   case mToken of
-    Just token -> (Movies, Cmd.none)
+    Just _ -> (Movies, Cmd.none)
     Nothing    ->
       let (subModel, subCmd) = Login.init apiRoot
       in  (Login subModel, Cmd.map GotLoginMsg subCmd)
 
 
-updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
-updateWith toModel toMsg model ( subModel, subCmd ) =
+updateWith : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toModel toMsg ( subModel, subCmd ) =
     ( toModel subModel
     , Cmd.map toMsg subCmd
     )
@@ -69,7 +69,7 @@ update msg model =
     (LinkClicked (External url), _) -> (model, Navigation.load url)
     (GotLoginMsg loginMsg, Login loginModel) ->
       Login.update loginMsg loginModel
-        |> updateWith Login GotLoginMsg model
+        |> updateWith Login GotLoginMsg
     _ -> (model, Cmd.none)
 
 
