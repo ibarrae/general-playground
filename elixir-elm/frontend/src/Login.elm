@@ -7,8 +7,8 @@ import Browser exposing (Document)
 import RemoteData
 import Http exposing (request, emptyBody)
 import Base64
-import Token exposing (JWTResponse, tokenDecoder)
-import Browser.Navigation as Navigation
+import Token exposing (JWTToken(..), JWTResponse, tokenDecoder)
+import Ports
 
 type UserInput = UserInput
   { uiEmail : String
@@ -72,6 +72,7 @@ loginWithBasicAuth apiRoot (UserInput {uiEmail, uiPassword}) =
     , tracker = Nothing
     }
 
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg (Model ({apiRoot, userInput} as model)) =
   case msg of
@@ -93,7 +94,7 @@ update msg (Model ({apiRoot, userInput} as model)) =
     LoginResponse response ->
       ( Model { model | loginResponse = response }
       , case response of
-          RemoteData.Success _ -> Navigation.load "/#/cities"
+          RemoteData.Success (JWTToken token) -> Ports.manageToken <| Just token
           _ -> Cmd.none
       )
 
