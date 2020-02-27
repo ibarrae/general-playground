@@ -1,25 +1,33 @@
 "use strict";
 
 var { Elm } = require("./Main.elm");
-const tokenKey = "my-session"
-const flags = {
-  mToken: localStorage.getItem(tokenKey),
+const tokenKey = "my-session";
+const storedInfo = localStorage.getItem(tokenKey)
+const flags = storedInfo ? JSON.parse(storedInfo) : {
+  mToken: null,
   apiRoot: API_ROOT
 };
 
-const app = Elm.Main.init({ node: document.getElementById("root"), flags: flags });
+const app = Elm.Main.init({
+  node: document.getElementById("root"),
+  flags: flags
+});
 
-app.ports.manageSession.subscribe((val) => {
+app.ports.manageSession.subscribe(val => {
   if (val) {
-    localStorage.setItem(tokenKey, val)
+    localStorage.setItem(tokenKey, JSON.stringify(val));
   } else {
     localStorage.removeItem(tokenKey);
   }
   setTimeout(() => app.ports.onSessionChange.send(val), 0);
 });
 
-window.addEventListener("storage", (event) => {
-  if (event.storageArea === localStorage && event.key === tokenKey) {
-    app.ports.onSessionChange.send(event.newValue);
-  }
-}, false);
+window.addEventListener(
+  "storage",
+  event => {
+    if (event.storageArea === localStorage && event.key === tokenKey) {
+      app.ports.onSessionChange.send(event.newValue);
+    }
+  },
+  false
+);

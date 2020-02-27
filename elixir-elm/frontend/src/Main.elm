@@ -12,7 +12,6 @@ import Session
 import Ports
 import Json.Decode exposing (decodeValue)
 import Result exposing (toMaybe)
-import Maybe
 
 
 type Msg

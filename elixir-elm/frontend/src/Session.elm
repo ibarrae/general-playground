@@ -14,13 +14,13 @@ type alias Session =
 sessionJson : String -> JWTToken -> Value
 sessionJson apiRoot (JWTToken token) =
   object
-    [ ("api_root", string apiRoot)
-    , ("token", string token)
+    [ ("apiRoot", string apiRoot)
+    , ("mToken", string token)
     ]
 
 sessionDecoder : Decoder Session
 sessionDecoder =
-  D.map2 Session (field "api_root" D.string) (D.map JWTToken <| field "token" D.string)
+  D.map2 Session (field "apiRoot" D.string) (D.map JWTToken <| field "mToken" D.string)
 
 type JWTToken = JWTToken String
 
