@@ -43,5 +43,8 @@ defmodule BackendWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  if :dev do
+    plug CORSPlug
+  end
   plug BackendWeb.Router
 end
